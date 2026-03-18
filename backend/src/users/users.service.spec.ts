@@ -107,4 +107,153 @@ describe('UsersService', () => {
       expect(minioService.getPresignedUrl).not.toHaveBeenCalled();
     });
   });
+
+  describe('updateProfile', () => {
+    const userId = 'user-id';
+    const updateUserDto = {
+      fullName: 'Updated User',
+    };
+
+    const updatedUserData = {
+      ...userData,
+      fullName: updateUserDto.fullName,
+    };
+
+    it('happy path: should update user profile and return updated data with enriched avatar URL', async () => {
+      (prismaService.user.update as jest.Mock).mockResolvedValue(
+        updatedUserData,
+      );
+      (minioService.getPresignedUrl as jest.Mock).mockResolvedValueOnce(
+        'url/avatar.jpg',
+      );
+
+      const updatedUser = await service.updateProfile(userId, updateUserDto);
+
+      expect(updatedUser).toBe(updatedUserData);
+      expect(updatedUser).toEqual(updatedUserData);
+      expect(prismaService.user.update).toHaveBeenCalledWith({
+        where: { id: userId },
+        data: updateUserDto,
+        select: {
+          id: true,
+          email: true,
+          fullName: true,
+          avatar: true,
+          usedStorage: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+      expect(minioService.getPresignedUrl).toHaveBeenCalledWith(
+        updatedUserData.avatar,
+      );
+    });
+
+    it('error path: should throw NotFoundException if user is not found', async () => {
+      const userId = 'failed-update-id';
+      (prismaService.user.update as jest.Mock).mockResolvedValue(null);
+
+      await expect(
+        service.updateProfile(userId, updateUserDto),
+      ).rejects.toThrow(NotFoundException);
+
+      expect(minioService.getPresignedUrl).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('uploadAvatar', () => {
+    const userId = 'user-id';
+    const file = {
+      originalname: 'avatar.jpg',
+      buffer: Buffer.from('file content'),
+      mimetype: 'image/jpeg',
+    };
+    const fixedNow = 1700000000000;
+    const generatedFileName = `avatars/${userId}-${fixedNow}-${file.originalname}`;
+
+    beforeEach(() => {
+      jest.spyOn(Date, 'now').mockReturnValue(fixedNow);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('happy path: should upload avatar with enriched avatar URL', async () => {
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue({
+        avatar: userData.avatar,
+      });
+      (minioService.uploadFile as jest.Mock).mockResolvedValue({
+        fileName: generatedFileName,
+      });
+
+      const updatedUserFromDb = {
+        ...userData,
+        avatar: generatedFileName,
+      };
+
+      (prismaService.user.update as jest.Mock).mockResolvedValue(
+        updatedUserFromDb,
+      );
+
+      (minioService.getPresignedUrl as jest.Mock).mockResolvedValueOnce(
+        'url/' + generatedFileName,
+      );
+
+      const result = await service.uploadAvatar(userId, file);
+
+      expect(result.avatar).toBe('url/' + generatedFileName);
+      expect(result).toEqual(updatedUserFromDb);
+      expect(minioService.uploadFile).toHaveBeenCalledWith(
+        generatedFileName,
+        file.buffer,
+        { 'Content-Type': file.mimetype },
+      );
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { id: userId },
+        select: { avatar: true },
+      });
+      expect(minioService.deleteFile).toHaveBeenCalledWith(userData.avatar);
+      expect(prismaService.user.update).toHaveBeenCalledWith({
+        where: { id: userId },
+        data: { avatar: generatedFileName },
+        select: {
+          id: true,
+          email: true,
+          fullName: true,
+          avatar: true,
+          usedStorage: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+      expect(minioService.getPresignedUrl).toHaveBeenCalledWith(
+        generatedFileName,
+      );
+      expect(Date.now).toHaveBeenCalled();
+    });
+
+    it('error path: should throw NotFoundException if findUnique return null', async () => {
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
+
+      await expect(service.uploadAvatar(userId, file)).rejects.toThrow(
+        NotFoundException,
+      );
+
+      expect(minioService.deleteFile).not.toHaveBeenCalled();
+      expect(minioService.uploadFile).not.toHaveBeenCalled();
+      expect(prismaService.user.update).not.toHaveBeenCalled();
+      expect(minioService.getPresignedUrl).not.toHaveBeenCalled();
+    });
+  });
+
+  // describe('getStats', () => {
+  //   it('happy path: ', async () => {});
+  //   it('error path: ', async () => {});
+  // });
+
+  // describe('removeAvatar', () => {
+  //   it('happy path: ', async () => {});
+  //   it('error path: ', async () => {});
+  // });
 });

@@ -58,6 +58,10 @@ export class UsersService {
       },
     });
 
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     return this.enrichUserWithAvatarUrl(user);
   }
 
@@ -72,16 +76,20 @@ export class UsersService {
       select: { avatar: true },
     });
 
-    // Upload new avatar
-    const fileName = `avatars/${userId}-${Date.now()}-${file.originalname}`;
-    await this.minioService.uploadFile(fileName, file.buffer, {
-      'Content-Type': file.mimetype,
-    });
+    if (!currentUser) {
+      throw new NotFoundException('User not found');
+    }
 
     // Delete old avatar from MinIO if exists
     if (currentUser?.avatar) {
       await this.minioService.deleteFile(currentUser.avatar);
     }
+
+    // Upload new avatar
+    const fileName = `avatars/${userId}-${Date.now()}-${file.originalname}`;
+    await this.minioService.uploadFile(fileName, file.buffer, {
+      'Content-Type': file.mimetype,
+    });
 
     const user = await this.prisma.user.update({
       where: { id: userId },
@@ -131,6 +139,10 @@ export class UsersService {
       where: { id: userId },
       select: { avatar: true },
     });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
     if (user?.avatar) {
       await this.minioService.deleteFile(user.avatar);
