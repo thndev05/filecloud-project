@@ -3,7 +3,6 @@ import { UsersService } from './users.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { MinioService } from '../minio/minio.service';
 import { NotFoundException } from '@nestjs/common';
-import { min } from 'class-validator';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -247,10 +246,55 @@ describe('UsersService', () => {
     });
   });
 
-  // describe('getStats', () => {
-  //   it('happy path: ', async () => {});
-  //   it('error path: ', async () => {});
-  // });
+  describe('getStats', () => {
+    const userId = 'user-id';
+
+    it('happy path: should return stats successfully', async () => {
+      (prismaService.file.count as jest.Mock).mockResolvedValue(5);
+      (prismaService.folder.count as jest.Mock).mockResolvedValue(3);
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue({
+        usedStorage: 1024,
+      });
+
+      const stats = await service.getStats(userId);
+
+      expect(stats).toEqual({
+        totalFiles: 5,
+        totalFolders: 3,
+        usedStorage: 1024,
+        maxStorage: 10 * 1024 * 1024 * 1024,
+      });
+      expect(prismaService.file.count).toHaveBeenCalledWith({
+        where: { userId, isDeleted: false },
+      });
+      expect(prismaService.folder.count).toHaveBeenCalledWith({
+        where: { userId },
+      });
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { id: userId },
+        select: { usedStorage: true },
+      });
+    });
+
+    it('error path: should throw NotFoundException if findUnique is null', async () => {
+      (prismaService.file.count as jest.Mock).mockResolvedValue(5);
+      (prismaService.folder.count as jest.Mock).mockResolvedValue(3);
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
+
+      await expect(service.getStats(userId)).rejects.toThrow(NotFoundException);
+
+      expect(prismaService.file.count).toHaveBeenCalledWith({
+        where: { userId, isDeleted: false },
+      });
+      expect(prismaService.folder.count).toHaveBeenCalledWith({
+        where: { userId },
+      });
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { id: userId },
+        select: { usedStorage: true },
+      });
+    });
+  });
 
   // describe('removeAvatar', () => {
   //   it('happy path: ', async () => {});
