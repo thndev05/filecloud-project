@@ -10,4 +10,4 @@ import { MinioModule } from '../minio/minio.module';
   providers: [UsersService],
   exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}
