@@ -296,8 +296,46 @@ describe('UsersService', () => {
     });
   });
 
-  // describe('removeAvatar', () => {
-  //   it('happy path: ', async () => {});
-  //   it('error path: ', async () => {});
-  // });
+  describe('removeAvatar', () => {
+    const userId = userData.id;
+
+    it('happy path: should remove avatar successfully', async () => {
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue({
+        avatar: userData.avatar,
+      });
+      (minioService.deleteFile as jest.Mock).mockResolvedValue(undefined);
+      (prismaService.user.update as jest.Mock).mockResolvedValue({
+        ...userData,
+        avatar: null,
+      });
+
+      const result = await service.removeAvatar(userId);
+
+      expect(result).toEqual({ message: 'Avatar removed successfully' });
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { id: userId },
+        select: { avatar: true },
+      });
+      expect(minioService.deleteFile).toHaveBeenCalledWith(userData.avatar);
+      expect(prismaService.user.update).toHaveBeenCalledWith({
+        where: { id: userId },
+        data: { avatar: null },
+      });
+    });
+
+    it('error path: should throw NotFoundException if avatar is null', async () => {
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
+
+      await expect(service.removeAvatar(userId)).rejects.toThrow(
+        NotFoundException,
+      );
+
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { id: userId },
+        select: { avatar: true },
+      });
+      expect(minioService.deleteFile).not.toHaveBeenCalled();
+      expect(prismaService.user.update).not.toHaveBeenCalled();
+    });
+  });
 });
