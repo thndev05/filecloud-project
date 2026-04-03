@@ -35,8 +35,8 @@ const Header: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    authService.logout();
+  const handleLogout = async () => {
+    await authService.logout();
     navigate('/login');
   };
 
@@ -105,9 +105,9 @@ const Header: React.FC = () => {
                 </button>
                 <div className="border-t border-gray-200 dark:border-[#232f48] my-1"></div>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     setIsDropdownOpen(false);
-                    handleLogout();
+                    await handleLogout();
                   }}
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-[#232f48] hover:text-red-600 dark:hover:text-red-300 transition-colors"
                 >
