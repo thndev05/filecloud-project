@@ -1,65 +1,65 @@
-# FileCloud - Hệ thống Quản lý và Lưu trữ File
+# FileCloud — File Management & Cloud Storage
 
-FileCloud là một ứng dụng quản lý và lưu trữ file đám mây full-stack, cho phép người dùng tải lên, quản lý, chia sẻ file và thư mục một cách dễ dàng.
+FileCloud is a full-stack cloud file management application that lets users upload, organize, share, and restore files and folders.
 
-## Tính năng
+## Features
 
-- **Xác thực người dùng** - Đăng ký, đăng nhập với JWT
-- **Quản lý file & thư mục** - Tải lên, tải xuống, xóa, tổ chức file
-- **Chia sẻ file** - Chia sẻ file thông qua link công khai hoặc trực tiếp với người dùng
-- **Thùng rác** - Khôi phục file đã xóa
-- **Thông báo realtime** - Nhận thông báo khi có file được chia sẻ (WebSocket)
-- **Quản lý hồ sơ** - Cập nhật thông tin cá nhân và avatar
-- **Giao diện hiện đại** - UI responsive với Tailwind CSS và Framer Motion
-- **Bảo mật** - Mã hóa mật khẩu, JWT authentication, file access control
+- **User authentication** — Registration and login using JWT
+- **File & folder management** — Upload, download, delete, and organize files
+- **File sharing** — Share files via public links or direct user shares
+- **Trash (soft delete)** — Restore deleted files from the trash
+- **Realtime notifications** — Receive notifications when files are shared (WebSocket)
+- **User profiles** — Update personal info and avatar
+- **Modern UI** — Responsive interface built with Tailwind CSS and Framer Motion
+- **Security** — Password hashing, JWT, and file access control
 
-## Công nghệ sử dụng
+## Tech Stack
 
 ### Backend
-- **NestJS** - Framework Node.js progressive
-- **Prisma ORM** - ORM thế hệ mới cho TypeScript
-- **PostgreSQL** - Cơ sở dữ liệu quan hệ
-- **MinIO** - Object storage hiệu năng cao
-- **Socket.IO** - WebSocket cho realtime notifications
-- **JWT** - JSON Web Tokens cho authentication
-- **Bcrypt** - Mã hóa mật khẩu
+- **NestJS** — Progressive Node.js framework
+- **Prisma ORM** — Type-safe database toolkit for TypeScript
+- **PostgreSQL** — Relational database
+- **MinIO** — High-performance object storage
+- **Socket.IO** — WebSocket layer for realtime notifications
+- **JWT** — JSON Web Tokens for authentication
+- **bcrypt** — Password hashing
 
 ### Frontend
-- **React 19** - Thư viện UI
-- **TypeScript** - Type-safe JavaScript
-- **Vite** - Build tool nhanh
-- **React Router** - Routing
-- **Tailwind CSS** - Utility-first CSS framework
-- **Framer Motion** - Animation library
-- **Axios** - HTTP client
-- **Socket.IO Client** - WebSocket client
-- **Lucide React** - Icon library
+- **React** — UI library
+- **TypeScript** — Typed JavaScript
+- **Vite** — Fast build tool
+- **React Router** — Client routing
+- **Tailwind CSS** — Utility-first CSS framework
+- **Framer Motion** — Animations
+- **Axios** — HTTP client
+- **Socket.IO Client** — Realtime client
+- **Lucide React** — Icon set
 
-## Yêu cầu
+## Requirements
 
-- **Node.js** 18+ và npm
-- **Docker** và **Docker Compose** (để chạy PostgreSQL và MinIO)
-- **Git**
+- Node.js 18+ and npm
+- Docker and Docker Compose (recommended for PostgreSQL and MinIO)
+- Git
 
-## Cài đặt và Chạy
+## Installation & Running
 
-### 1. Clone repository
+### 1. Clone the repository
 
 ```bash
 git clone <repository-url>
 cd filecloud-project
 ```
 
-### 2. Cài đặt Backend
+### 2. Backend setup
 
 ```bash
 cd backend
 npm install
 ```
 
-#### Cấu hình môi trường Backend
+#### Backend environment
 
-Tạo file `.env` trong thư mục `backend`:
+Create a `.env` file inside `backend` and set the following values:
 
 ```env
 NODE_ENV=development
@@ -79,9 +79,9 @@ MINIO_SECRET_KEY=minioadmin
 MINIO_BUCKET_NAME=filecloud
 ```
 
-#### Khởi động Docker Services
+#### Start Docker services
 
-Tạo file `docker-compose.yml` trong thư mục gốc hoặc backend:
+You can use the provided `docker-compose.yml` (create it in the project root or `backend`):
 
 ```yaml
 version: '3.8'
@@ -117,78 +117,78 @@ volumes:
   minio_data:
 ```
 
-Khởi động services:
+Start services:
 
 ```bash
 docker-compose up -d
 ```
 
-#### Chạy migration và tạo bucket MinIO
+#### Run migrations and start backend
 
 ```bash
 cd backend
 
-# Chạy Prisma migration
+# Run Prisma migrations
 npm run prisma:migrate
 
-# Chạy Prisma generate
+# Generate Prisma client
 npm run prisma:generate
 
-# Khởi động backend
+# Start backend in development
 npm run start:dev
 ```
 
-Backend sẽ chạy tại: `http://localhost:3000`
+The backend will run at: `http://localhost:3000`.
 
-**Lưu ý:** Bucket MinIO sẽ được tự động tạo khi backend khởi động lần đầu.
+Note: the MinIO bucket is created automatically on first backend startup.
 
-### 3. Cài đặt Frontend
+### 3. Frontend setup
 
 ```bash
 cd frontend
 npm install
 ```
 
-#### Cấu hình môi trường Frontend
+#### Frontend environment
 
-Tạo file `.env` trong thư mục `frontend`:
+Create a `.env` file inside `frontend`:
 
 ```env
 VITE_API_URL=http://localhost:3000
 VITE_WS_URL=http://localhost:3000
 ```
 
-#### Khởi động Frontend
+#### Run frontend
 
 ```bash
 npm run dev
 ```
 
-Frontend sẽ chạy tại: `http://localhost:5173`
+The frontend will run at: `http://localhost:5173`.
 
-## Cấu trúc Project
+## Project Structure
 
 ```
 filecloud-project/
-├── backend/                    # Backend NestJS
+├── backend/                    # NestJS backend
 │   ├── src/
-│   │   ├── auth/              # Module xác thực
-│   │   ├── users/             # Module quản lý người dùng
-│   │   ├── files/             # Module quản lý file
-│   │   ├── folders/           # Module quản lý thư mục
-│   │   ├── shares/            # Module chia sẻ
-│   │   ├── notifications/     # Module thông báo realtime
-│   │   ├── minio/             # Module MinIO storage
-│   │   └── prisma/            # Module Prisma
+│   │   ├── auth/              # Authentication module
+│   │   ├── users/             # User management
+│   │   ├── files/             # File module
+│   │   ├── folders/           # Folder module
+│   │   ├── shares/            # Sharing module
+│   │   ├── notifications/     # Realtime notifications
+│   │   ├── minio/             # MinIO storage integration
+│   │   └── prisma/            # Prisma module
 │   ├── prisma/
 │   │   ├── schema.prisma      # Prisma schema
 │   │   └── migrations/        # Database migrations
 │   └── package.json
 │
-└── frontend/                   # Frontend React
+└── frontend/                   # React frontend
     ├── src/
     │   ├── components/        # React components
-    │   ├── pages/             # Các trang
+    │   ├── pages/             # App pages
     │   ├── services/          # API services
     │   ├── contexts/          # React contexts
     │   ├── layouts/           # Layout components
@@ -196,191 +196,192 @@ filecloud-project/
     └── package.json
 ```
 
-## Scripts hữu ích
+## Useful Scripts
 
 ### Backend
 
 ```bash
 # Development
-npm run start:dev          # Chạy ở chế độ watch
-npm run start:debug        # Chạy với debug mode
+npm run start:dev          # Start in watch mode
+npm run start:debug        # Start with debugger
 
 # Build
 npm run build              # Build production
-npm run start:prod         # Chạy production
+npm run start:prod         # Run production build
 
 # Database
-npm run prisma:migrate     # Chạy migration
+npm run prisma:migrate     # Run migrations
 npm run prisma:generate    # Generate Prisma Client
-npm run prisma:studio      # Mở Prisma Studio
-npm run prisma:migrate:reset  # Reset database
+npm run prisma:studio      # Open Prisma Studio
+npm run prisma:migrate:reset  # Reset database (use with caution)
 
 # Testing
-npm run test               # Chạy tests
-npm run test:watch         # Chạy tests ở chế độ watch
-npm run test:cov           # Test với coverage
+npm run test               # Run tests
+npm run test:watch         # Run tests in watch mode
+npm run test:cov           # Run tests with coverage
 ```
 
 ### Frontend
 
 ```bash
-npm run dev                # Chạy development server
+npm run dev                # Run development server
 npm run build              # Build production
 npm run preview            # Preview production build
-npm run lint               # Chạy ESLint
-npm run lint:fix           # Fix ESLint errors
+npm run lint               # Run ESLint
+npm run lint:fix           # Auto-fix ESLint issues
 ```
 
-## Database Schema
+## Database Model (high level)
 
 ### User
-- Thông tin người dùng (email, password, fullName, avatar)
-- Theo dõi storage đã sử dụng
+- Stores user information (email, password, fullName, avatar)
+- Tracks storage usage
 
 ### Folder
-- Cấu trúc thư mục phân cấp
-- Mỗi folder thuộc về một user
-- Hỗ trợ nested folders
+- Hierarchical folder structure
+- Each folder belongs to a user
+- Supports nested folders
 
 ### File
-- Metadata file (name, size, mimeType, storagePath)
-- Hỗ trợ soft delete (thùng rác)
-- File có thể nằm trong folder hoặc ở root
-- Hỗ trợ bảo vệ bằng mật khẩu
+- File metadata (name, size, mimeType, storagePath)
+- Soft delete (trash) support
+- Files can live in a folder or at the root
+- Optional password protection
 
 ### Share
-- Chia sẻ file qua link công khai hoặc trực tiếp
+- Share files via public link or direct shares
 - Token-based access
-- Trạng thái: pending, accepted, rejected
-- Có thể kích hoạt/vô hiệu hóa
+- Status: pending, accepted, rejected
+- Can be enabled/disabled
 
 ## Authentication Flow
 
-1. User đăng ký với email và password
-2. Password được hash bằng bcrypt
-3. User đăng nhập và nhận JWT token
-4. Token được lưu trong cookie
-5. Mọi request đều gửi kèm token để xác thực
-6. Protected routes kiểm tra token validity
+1. User registers with email and password
+2. Password is hashed with bcrypt
+3. User logs in and receives a JWT token
+4. Token is stored in a cookie
+5. Requests include the token for authentication
+6. Protected routes validate the token
 
 ## API Endpoints
 
 ### Auth
-- `POST /auth/register` - Đăng ký
-- `POST /auth/login` - Đăng nhập
-- `POST /auth/logout` - Đăng xuất
-- `GET /auth/me` - Lấy thông tin user hiện tại
+- `POST /auth/register` — Register
+- `POST /auth/login` — Login
+- `POST /auth/logout` — Logout
+- `GET /auth/me` — Get current user
 
 ### Files
-- `GET /files` - Lấy danh sách file
-- `POST /files/upload` - Tải lên file
-- `GET /files/:id` - Lấy thông tin file
-- `GET /files/:id/download` - Tải xuống file
-- `DELETE /files/:id` - Xóa file (soft delete)
-- `PUT /files/:id/restore` - Khôi phục file
+- `GET /files` — List files
+- `POST /files/upload` — Upload file
+- `GET /files/:id` — Get file metadata
+- `GET /files/:id/download` — Download file
+- `DELETE /files/:id` — Soft-delete file
+- `PUT /files/:id/restore` — Restore file
 
 ### Folders
-- `GET /folders` - Lấy danh sách folder
-- `POST /folders` - Tạo folder mới
-- `GET /folders/:id` - Lấy thông tin folder
-- `PUT /folders/:id` - Cập nhật folder
-- `DELETE /folders/:id` - Xóa folder
+- `GET /folders` — List folders
+- `POST /folders` — Create folder
+- `GET /folders/:id` — Get folder
+- `PUT /folders/:id` — Update folder
+- `DELETE /folders/:id` — Delete folder
 
 ### Shares
-- `POST /shares` - Tạo share
-- `GET /shares` - Lấy danh sách shares
-- `GET /shares/token/:token` - Truy cập shared file
-- `PUT /shares/:id` - Cập nhật share
-- `DELETE /shares/:id` - Xóa share
+- `POST /shares` — Create share
+- `GET /shares` — List shares
+- `GET /shares/token/:token` — Access shared file
+- `PUT /shares/:id` — Update share
+- `DELETE /shares/:id` — Delete share
 
 ### Users
-- `GET /users/me` - Lấy profile
-- `PUT /users/me` - Cập nhật profile
-- `POST /users/avatar` - Upload avatar
+- `GET /users/me` — Get profile
+- `PUT /users/me` — Update profile
+- `POST /users/avatar` — Upload avatar
 
-## Trang Frontend
+## Frontend Routes
 
-- `/login` - Đăng nhập
-- `/register` - Đăng ký
-- `/dashboard` - Trang chủ sau khi đăng nhập
-- `/my-files` - Quản lý file của tôi
-- `/shared` - File được chia sẻ với tôi
-- `/shared/:token` - Truy cập file qua link chia sẻ
-- `/trash` - Thùng rác
-- `/settings` - Cài đặt
-- `/profile/edit` - Chỉnh sửa hồ sơ
+- `/login` — Login
+- `/register` — Register
+- `/dashboard` — Main dashboard
+- `/my-files` — My files
+- `/shared` — Files shared with me
+- `/shared/:token` — Access shared file via token
+- `/trash` — Trash
+- `/settings` — Settings
+- `/profile/edit` — Edit profile
 
 ## WebSocket Events
 
-- `shareNotification` - Nhận thông báo khi có file được chia sẻ
-- Connection tự động với JWT authentication
+- `shareNotification` — Notify when a file is shared
+- Connections authenticate using JWT
 
 ## UI Components
 
-- **Header** - Navigation bar với user menu
-- **Sidebar** - Navigation sidebar
-- **FileTable** - Hiển thị danh sách file dạng table
-- **ShareModal** - Modal chia sẻ file
-- **ShareNotificationModal** - Modal thông báo chia sẻ
-- **UploadButton** - Button tải lên file
-- **FilterBar** - Bộ lọc và tìm kiếm
-- **Modal** - Component modal tái sử dụng
-- **ProtectedRoute** - Route bảo vệ cần authentication
+- **Header** — Navigation bar with user menu
+- **Sidebar** — Navigation sidebar
+- **FileTable** — Table-style file listing
+- **ShareModal** — File sharing modal
+- **ShareNotificationModal** — Share notification modal
+- **UploadButton** — File upload button
+- **FilterBar** — Filter and search controls
+- **Modal** — Reusable modal component
+- **ProtectedRoute** — Route guard requiring authentication
 
 ## Development
 
-### Thêm migration mới
+### Add a new migration
 
 ```bash
 cd backend
 npm run prisma:migrate
 ```
 
-### Xem database với Prisma Studio
+### Open Prisma Studio
 
 ```bash
 cd backend
 npm run prisma:studio
 ```
 
-Truy cập: `http://localhost:5555`
+Open Prisma Studio at: `http://localhost:5555`
 
-### Truy cập MinIO Console
+### MinIO Console
 
-Truy cập: `http://localhost:9001`
+Open MinIO Console at: `http://localhost:9001`
+
 - Username: `minioadmin`
 - Password: `minioadmin`
 
-## Todo / Cải tiến
+## TODO / Improvements
 
-- [ ] Hỗ trợ upload nhiều file cùng lúc
-- [ ] Preview file (images, PDFs)
-- [ ] Search và filter nâng cao
-- [ ] Chia sẻ folder
-- [ ] Permissions chi tiết hơn (view, edit, download)
+- [ ] Support multi-file uploads
+- [ ] File previews (images, PDFs)
+- [ ] Advanced search & filters
+- [ ] Folder sharing
+- [ ] Fine-grained permissions (view, edit, download)
 - [ ] Activity logs
 - [ ] Storage quota management
 - [ ] File versioning
 - [ ] Collaborative editing
 - [ ] Mobile app
 
-## Đóng góp
+## Contributing
 
-Mọi đóng góp đều được chào đón! Hãy tạo issue hoặc pull request.
+Contributions are welcome — please open an issue or submit a pull request.
 
 ## License
 
 MIT License
 
-## Tác giả
+## Author
 
 [Your Name]
 
-## Liên hệ
+## Contact
 
 - Email: your.email@example.com
 - GitHub: [@yourusername](https://github.com/yourusername)
 
 ---
 
-**Lưu ý:** Đây là project demo/học tập. Không nên sử dụng trực tiếp trong production mà không có các biện pháp bảo mật và tối ưu hóa bổ sung.
+**Note:** This is a demo/learning project. Do not use it in production without additional security and performance hardening.
