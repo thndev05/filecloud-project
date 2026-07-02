@@ -191,7 +191,7 @@ describe('AuthService', () => {
       expect(prismaService.user.update).toHaveBeenCalledWith({
         where: { id: userFromDb.id },
         data: {
-          refreshToken: 'hashed-refresh-token',
+          refreshTokenHash: 'hashed-refresh-token',
         },
       });
     });
@@ -234,7 +234,7 @@ describe('AuthService', () => {
     const userWithRefreshToken = {
       id: 'user-id',
       email: 'test@email.com',
-      refreshToken: 'hashed-refresh-token',
+      refreshTokenHash: 'hashed-refresh-token',
     };
 
     it('happy path: should verify refresh token and return a new token pair', async () => {
@@ -263,17 +263,17 @@ describe('AuthService', () => {
         select: {
           id: true,
           email: true,
-          refreshToken: true,
+          refreshTokenHash: true,
         },
       });
       expect(bcrypt.compare).toHaveBeenCalledWith(
         refreshToken,
-        userWithRefreshToken.refreshToken,
+        userWithRefreshToken.refreshTokenHash,
       );
       expect(prismaService.user.update).toHaveBeenCalledWith({
         where: { id: userWithRefreshToken.id },
         data: {
-          refreshToken: 'new-hashed-refresh-token',
+          refreshTokenHash: 'new-hashed-refresh-token',
         },
       });
     });
@@ -309,7 +309,7 @@ describe('AuthService', () => {
       (jwtService.verifyAsync as jest.Mock).mockResolvedValue(refreshPayload);
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue({
         ...userWithRefreshToken,
-        refreshToken: null,
+        refreshTokenHash: null,
       });
 
       await expect(service.refreshTokens(refreshToken)).rejects.toThrow(
@@ -345,7 +345,7 @@ describe('AuthService', () => {
       expect(prismaService.user.update).toHaveBeenCalledWith({
         where: { id: 'user-id' },
         data: {
-          refreshToken: null,
+          refreshTokenHash: null,
         },
       });
     });
