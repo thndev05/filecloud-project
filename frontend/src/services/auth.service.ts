@@ -2,6 +2,20 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const ACCESS_TOKEN_KEY = 'filecloud_access_token';
+
+const getAccessToken = () =>
+  localStorage.getItem(ACCESS_TOKEN_KEY) || Cookies.get('token');
+
+const setAccessToken = (token: string) => {
+  localStorage.setItem(ACCESS_TOKEN_KEY, token);
+  Cookies.set('token', token, { path: '/', sameSite: 'lax' });
+};
+
+const clearAccessToken = () => {
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  Cookies.remove('token', { path: '/' });
+};
 
 const api = axios.create({
   baseURL: API_URL,
@@ -14,7 +28,7 @@ const api = axios.create({
 // Add a request interceptor to attach the token
 api.interceptors.request.use(
   (config) => {
-    const token = Cookies.get('token');
+    const token = getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -44,14 +58,14 @@ api.interceptors.response.use(
         const newAccessToken = refreshResponse.data?.access_token;
 
         if (newAccessToken) {
-          Cookies.set('token', newAccessToken);
+          setAccessToken(newAccessToken);
           originalRequest.headers = originalRequest.headers || {};
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         }
 
         return api(originalRequest);
       } catch (refreshError) {
-        Cookies.remove('token');
+        clearAccessToken();
         return Promise.reject(refreshError);
       }
     }
@@ -66,7 +80,7 @@ export const authService = {
   async login(credentials: Record<string, unknown>) {
     const response = await api.post('/auth/login', credentials);
     if (response.data.access_token) {
-      Cookies.set('token', response.data.access_token);
+      setAccessToken(response.data.access_token);
     }
     return response.data;
   },
@@ -83,7 +97,7 @@ export const authService = {
 
   async verifyToken() {
     try {
-      const token = Cookies.get('token');
+      const token = getAccessToken();
       if (!token) return false;
       await api.get('/auth/me');
       return true;
@@ -96,7 +110,7 @@ export const authService = {
     try {
       await api.post('/auth/logout');
     } finally {
-      Cookies.remove('token');
+      clearAccessToken();
     }
   },
 };
