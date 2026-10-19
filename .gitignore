@@ -44,9 +44,7 @@ Thumbs.db
 *.iml
 
 # Prisma
-backend/prisma/migrations/
 backend/generated/
-prisma/migrations/
 generated/
 *.db
 *.db-journal

@@ -20,7 +20,7 @@ model User {
   usedStorage Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  refreshTokenHash String?
+  refreshToken String? @map("refreshTokenHash")
 
   files          File[]
   folders        Folder[]

@@ -41,6 +41,10 @@ FileCloud is a full-stack cloud file management application that lets users uplo
 - Docker and Docker Compose (recommended for PostgreSQL and MinIO)
 - Git
 
+## Deploying to a VPS
+
+See [DEPLOY.md](DEPLOY.md) (one command: `sudo bash deploy/setup.sh <domain> <email>`).
+
 ## Installation & Running
 
 ### 1. Clone the repository
@@ -67,8 +71,8 @@ PORT=3000
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/filecloud?schema=public"
 
 # JWT
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-JWT_EXPIRES_IN=7d
+JWT_ACCESS_SECRET=change-me
+JWT_REFRESH_SECRET=change-me-too
 
 # MinIO
 MINIO_ENDPOINT=localhost

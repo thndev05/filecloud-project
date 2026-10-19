@@ -42,7 +42,8 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
         if (!user || !user.id) return;
 
         // Connect to WebSocket server
-        newSocket = io("http://localhost:3000", {
+        // VITE_WS_URL="/" => same origin (nginx proxies /socket.io/)
+        newSocket = io(import.meta.env.VITE_WS_URL || "http://localhost:3000", {
           transports: ["websocket"],
           reconnection: true,
           reconnectionDelay: 1000,
