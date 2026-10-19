@@ -13,7 +13,7 @@ Trình duyệt ──HTTPS──► Nginx trên host (:443, chứng chỉ Let's 
 
 docker-compose.yml
   postgres  (postgres:16-alpine, volume postgres_data)
-  minio     (minio/minio, volume minio_data)
+  minio     (pgsty/minio — bản build MinIO cộng đồng, volume minio_data)
   backend   (NestJS, kết nối DB qua host nội bộ "postgres:5432")
   frontend  (nginx:alpine phục vụ bản build React)
 ```

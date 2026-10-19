@@ -16,7 +16,8 @@ services:
       retries: 10
 
   minio:
-    image: minio/minio
+    # Official minio/minio images were removed from Docker Hub; pgsty/minio is a maintained community build
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:

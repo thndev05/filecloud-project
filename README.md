@@ -104,7 +104,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   minio:
-    image: minio/minio
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
     container_name: filecloud-minio
     command: server /data --console-address ":9001"
     environment:
