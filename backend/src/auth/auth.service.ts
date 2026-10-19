@@ -103,17 +103,17 @@ export class AuthService {
       select: {
         id: true,
         email: true,
-        refreshToken: true,
+        refreshTokenHash: true,
       },
     });
 
-    if (!user?.refreshToken) {
+    if (!user?.refreshTokenHash) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
     const isRefreshTokenValid = await bcrypt.compare(
       refreshToken,
-      user.refreshToken,
+      user.refreshTokenHash,
     );
 
     if (!isRefreshTokenValid) {
@@ -130,7 +130,7 @@ export class AuthService {
     await this.prisma.user.update({
       where: { id: userId },
       data: {
-        refreshToken: null,
+        refreshTokenHash: null,
       },
     });
   }
@@ -167,7 +167,7 @@ export class AuthService {
     await this.prisma.user.update({
       where: { id: userId },
       data: {
-        refreshToken: refreshTokenHash,
+        refreshTokenHash,
       },
     });
   }
