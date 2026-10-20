@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto, LoginDto } from './dto';
 import { ConfigService } from '@nestjs/config';

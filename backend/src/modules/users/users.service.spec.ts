@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
-import { PrismaService } from '../prisma/prisma.service';
-import { MinioService } from '../minio/minio.service';
+import { PrismaService } from '../../infrastructure/prisma/prisma.service';
+import { MinioService } from '../../infrastructure/minio/minio.service';
 import { NotFoundException } from '@nestjs/common';
 
 describe('UsersService', () => {

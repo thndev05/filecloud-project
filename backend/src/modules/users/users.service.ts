@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { MinioService } from '../minio/minio.service';
+import { PrismaService } from '../../infrastructure/prisma/prisma.service';
+import { MinioService } from '../../infrastructure/minio/minio.service';
 import { UpdateUserDto, UserResponseDto, UserStatsDto } from './dto';
 
 @Injectable()

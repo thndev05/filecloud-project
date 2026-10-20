@@ -4,8 +4,8 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { MinioService } from '../minio/minio.service';
+import { PrismaService } from '../../infrastructure/prisma/prisma.service';
+import { MinioService } from '../../infrastructure/minio/minio.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { CreateShareDto, CreateDirectShareDto, ShareResponseDto } from './dto';
 import { randomBytes } from 'crypto';
