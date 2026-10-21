@@ -5,6 +5,9 @@
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
-docker compose up -d --build
+# Build one image at a time: parallel tsc builds exhaust RAM on a 1 GB VPS
+docker compose build backend
+docker compose build frontend
+docker compose up -d
 docker image prune -f >/dev/null
 docker compose ps
