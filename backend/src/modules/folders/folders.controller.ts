@@ -8,7 +8,6 @@ import {
   Param,
   Query,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -24,7 +23,8 @@ import {
   RenameFolderDto,
   MoveFolderDto,
 } from './dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @ApiTags('folders')
 @ApiBearerAuth('JWT-auth')
@@ -38,10 +38,10 @@ export class FoldersController {
   @ApiResponse({ status: 201, type: FolderResponseDto })
   @ApiResponse({ status: 409, description: 'Folder name already exists' })
   async create(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Body() createFolderDto: CreateFolderDto,
   ): Promise<FolderResponseDto> {
-    return this.foldersService.create(req.user.id, createFolderDto);
+    return this.foldersService.create(userId, createFolderDto);
   }
 
   @Get()
@@ -49,10 +49,10 @@ export class FoldersController {
   @ApiQuery({ name: 'parentId', required: false })
   @ApiResponse({ status: 200, type: [FolderResponseDto] })
   async findAll(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Query('parentId') parentId?: string,
   ): Promise<FolderResponseDto[]> {
-    return this.foldersService.findAll(req.user.id, parentId);
+    return this.foldersService.findAll(userId, parentId);
   }
 
   @Get(':id')
@@ -60,46 +60,52 @@ export class FoldersController {
   @ApiResponse({ status: 200, type: FolderResponseDto })
   @ApiResponse({ status: 404, description: 'Folder not found' })
   async findOne(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
   ): Promise<FolderResponseDto> {
-    return this.foldersService.findOne(req.user.id, id);
+    return this.foldersService.findOne(userId, id);
   }
 
   @Get(':id/contents')
   @ApiOperation({ summary: 'Get folder with its contents' })
   @ApiResponse({ status: 200 })
-  async getFolderWithContents(@Request() req, @Param('id') id: string) {
-    return this.foldersService.getFolderWithContents(req.user.id, id);
+  async getFolderWithContents(
+    @CurrentUser('id') userId: string,
+    @Param('id') id: string,
+  ) {
+    return this.foldersService.getFolderWithContents(userId, id);
   }
 
   @Get(':id/breadcrumb')
   @ApiOperation({ summary: 'Get folder breadcrumb path' })
   @ApiResponse({ status: 200, type: [FolderResponseDto] })
-  async getBreadcrumb(@Request() req, @Param('id') id: string) {
-    return this.foldersService.getBreadcrumb(req.user.id, id);
+  async getBreadcrumb(
+    @CurrentUser('id') userId: string,
+    @Param('id') id: string,
+  ) {
+    return this.foldersService.getBreadcrumb(userId, id);
   }
 
   @Patch(':id/rename')
   @ApiOperation({ summary: 'Rename folder' })
   @ApiResponse({ status: 200, type: FolderResponseDto })
   async rename(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
     @Body() renameFolderDto: RenameFolderDto,
   ): Promise<FolderResponseDto> {
-    return this.foldersService.rename(req.user.id, id, renameFolderDto.name);
+    return this.foldersService.rename(userId, id, renameFolderDto.name);
   }
 
   @Patch(':id/move')
   @ApiOperation({ summary: 'Move folder to another parent' })
   @ApiResponse({ status: 200, type: FolderResponseDto })
   async move(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
     @Body() moveFolderDto: MoveFolderDto,
   ): Promise<FolderResponseDto> {
-    return this.foldersService.move(req.user.id, id, moveFolderDto.parentId);
+    return this.foldersService.move(userId, id, moveFolderDto.parentId);
   }
 
   @Delete(':id')
@@ -107,9 +113,9 @@ export class FoldersController {
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 400, description: 'Folder is not empty' })
   async delete(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
   ): Promise<{ message: string }> {
-    return this.foldersService.delete(req.user.id, id);
+    return this.foldersService.delete(userId, id);
   }
 }

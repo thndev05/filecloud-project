@@ -7,7 +7,6 @@ import {
   Param,
   Body,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -23,7 +22,8 @@ import {
   ShareActionDto,
   ShareResponseDto,
 } from './dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @ApiTags('shares')
 @Controller('shares')
@@ -42,10 +42,10 @@ export class SharesController {
   @ApiResponse({ status: 404, description: 'File not found' })
   @ApiResponse({ status: 403, description: 'Permission denied' })
   async createShare(
-    @Req() req: { user: { id: string } },
+    @CurrentUser('id') userId: string,
     @Body() createShareDto: CreateShareDto,
   ) {
-    return this.sharesService.createShare(req.user.id, createShareDto);
+    return this.sharesService.createShare(userId, createShareDto);
   }
 
   @Get('my')
@@ -57,8 +57,8 @@ export class SharesController {
     description: 'List of shares',
     type: [ShareResponseDto],
   })
-  async getMyShares(@Req() req: { user: { id: string } }) {
-    return this.sharesService.getMyShares(req.user.id);
+  async getMyShares(@CurrentUser('id') userId: string) {
+    return this.sharesService.getMyShares(userId);
   }
 
   @Get(':token')
@@ -97,10 +97,10 @@ export class SharesController {
   @ApiResponse({ status: 404, description: 'Share not found' })
   @ApiResponse({ status: 403, description: 'Permission denied' })
   async deleteShare(
-    @Req() req: { user: { id: string } },
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
   ) {
-    await this.sharesService.deleteShare(req.user.id, id);
+    await this.sharesService.deleteShare(userId, id);
     return { message: 'Share deleted successfully' };
   }
 
@@ -117,13 +117,10 @@ export class SharesController {
   @ApiResponse({ status: 403, description: 'Permission denied' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   async createDirectShare(
-    @Req() req: { user: { id: string } },
+    @CurrentUser('id') userId: string,
     @Body() createDirectShareDto: CreateDirectShareDto,
   ) {
-    return this.sharesService.createDirectShare(
-      req.user.id,
-      createDirectShareDto,
-    );
+    return this.sharesService.createDirectShare(userId, createDirectShareDto);
   }
 
   @Get('received/all')
@@ -137,8 +134,8 @@ export class SharesController {
     description: 'List of received shares',
     type: [ShareResponseDto],
   })
-  async getReceivedShares(@Req() req: { user: { id: string } }) {
-    return this.sharesService.getReceivedShares(req.user.id);
+  async getReceivedShares(@CurrentUser('id') userId: string) {
+    return this.sharesService.getReceivedShares(userId);
   }
 
   @Get('received/pending')
@@ -150,8 +147,8 @@ export class SharesController {
     description: 'List of pending shares',
     type: [ShareResponseDto],
   })
-  async getPendingShares(@Req() req: { user: { id: string } }) {
-    return this.sharesService.getPendingShares(req.user.id);
+  async getPendingShares(@CurrentUser('id') userId: string) {
+    return this.sharesService.getPendingShares(userId);
   }
 
   @Patch(':id/action')
@@ -163,15 +160,15 @@ export class SharesController {
   @ApiResponse({ status: 404, description: 'Share not found' })
   @ApiResponse({ status: 403, description: 'Permission denied' })
   async handleShareAction(
-    @Req() req: { user: { id: string } },
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
     @Body() shareActionDto: ShareActionDto,
   ) {
     if (shareActionDto.action === 'accept') {
-      const share = await this.sharesService.acceptShare(req.user.id, id);
+      const share = await this.sharesService.acceptShare(userId, id);
       return { message: 'Share accepted', share };
     } else {
-      await this.sharesService.rejectShare(req.user.id, id);
+      await this.sharesService.rejectShare(userId, id);
       return { message: 'Share rejected' };
     }
   }
@@ -189,11 +186,11 @@ export class SharesController {
   @ApiResponse({ status: 404, description: 'Share not found' })
   @ApiResponse({ status: 403, description: 'Permission denied' })
   async getSharedFileDownloadUrl(
-    @Req() req: { user: { id: string } },
+    @CurrentUser('id') userId: string,
     @Param('shareId') shareId: string,
   ) {
     const url = await this.sharesService.getSharedFileDownloadUrl(
-      req.user.id,
+      userId,
       shareId,
     );
     return { url };

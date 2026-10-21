@@ -8,7 +8,6 @@ import {
   Param,
   Query,
   UseGuards,
-  Request,
   UseInterceptors,
   UploadedFile,
   Res,
@@ -27,7 +26,8 @@ import {
 } from '@nestjs/swagger';
 import { FilesService } from './files.service';
 import { FileResponseDto, RenameFileDto, MoveFileDto } from './dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @ApiTags('files')
 @ApiBearerAuth('JWT-auth')
@@ -56,12 +56,12 @@ export class FilesController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async uploadFile(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     @UploadedFile() file: any,
     @Body('folderId') folderId?: string,
   ): Promise<FileResponseDto> {
-    return this.filesService.uploadFile(req.user.id, file, folderId);
+    return this.filesService.uploadFile(userId, file, folderId);
   }
 
   @Get()
@@ -77,10 +77,10 @@ export class FilesController {
     type: [FileResponseDto],
   })
   async findAll(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Query('folderId') folderId?: string,
   ): Promise<FileResponseDto[]> {
-    return this.filesService.findAll(req.user.id, folderId);
+    return this.filesService.findAll(userId, folderId);
   }
 
   @Get('recent')
@@ -88,17 +88,19 @@ export class FilesController {
   @ApiQuery({ name: 'limit', required: false })
   @ApiResponse({ status: 200, type: [FileResponseDto] })
   async getRecentFiles(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Query('limit') limit?: number,
   ): Promise<FileResponseDto[]> {
-    return this.filesService.getRecentFiles(req.user.id, limit);
+    return this.filesService.getRecentFiles(userId, limit);
   }
 
   @Get('trash')
   @ApiOperation({ summary: 'Get files in trash' })
   @ApiResponse({ status: 200, type: [FileResponseDto] })
-  async getTrash(@Request() req): Promise<FileResponseDto[]> {
-    return this.filesService.findAll(req.user.id, undefined, true);
+  async getTrash(
+    @CurrentUser('id') userId: string,
+  ): Promise<FileResponseDto[]> {
+    return this.filesService.findAll(userId, undefined, true);
   }
 
   @Get(':id')
@@ -106,10 +108,10 @@ export class FilesController {
   @ApiResponse({ status: 200, type: FileResponseDto })
   @ApiResponse({ status: 404, description: 'File not found' })
   async findOne(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
   ): Promise<FileResponseDto> {
-    return this.filesService.findOne(req.user.id, id);
+    return this.filesService.findOne(userId, id);
   }
 
   @Get(':id/download')
@@ -117,12 +119,12 @@ export class FilesController {
   @ApiResponse({ status: 200, description: 'File downloaded' })
   @ApiResponse({ status: 404, description: 'File not found' })
   async downloadFile(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
-    const file = await this.filesService.findOne(req.user.id, id);
-    const buffer = await this.filesService.downloadFile(req.user.id, id);
+    const file = await this.filesService.findOne(userId, id);
+    const buffer = await this.filesService.downloadFile(userId, id);
 
     res.set({
       'Content-Type': file.mimeType,
@@ -137,51 +139,51 @@ export class FilesController {
   @ApiOperation({ summary: 'Rename file' })
   @ApiResponse({ status: 200, type: FileResponseDto })
   async renameFile(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
     @Body() renameFileDto: RenameFileDto,
   ): Promise<FileResponseDto> {
-    return this.filesService.renameFile(req.user.id, id, renameFileDto.name);
+    return this.filesService.renameFile(userId, id, renameFileDto.name);
   }
 
   @Patch(':id/move')
   @ApiOperation({ summary: 'Move file to folder' })
   @ApiResponse({ status: 200, type: FileResponseDto })
   async moveFile(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
     @Body() moveFileDto: MoveFileDto,
   ): Promise<FileResponseDto> {
-    return this.filesService.moveFile(req.user.id, id, moveFileDto.folderId);
+    return this.filesService.moveFile(userId, id, moveFileDto.folderId);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Move file to trash' })
   @ApiResponse({ status: 200 })
   async moveToTrash(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
   ): Promise<{ message: string }> {
-    return this.filesService.moveToTrash(req.user.id, id);
+    return this.filesService.moveToTrash(userId, id);
   }
 
   @Post(':id/restore')
   @ApiOperation({ summary: 'Restore file from trash' })
   @ApiResponse({ status: 200, type: FileResponseDto })
   async restoreFile(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
   ): Promise<FileResponseDto> {
-    return this.filesService.restoreFile(req.user.id, id);
+    return this.filesService.restoreFile(userId, id);
   }
 
   @Delete(':id/permanent')
   @ApiOperation({ summary: 'Delete file permanently' })
   @ApiResponse({ status: 200 })
   async deleteFilePermanently(
-    @Request() req,
+    @CurrentUser('id') userId: string,
     @Param('id') id: string,
   ): Promise<{ message: string }> {
-    return this.filesService.deleteFilePermanently(req.user.id, id);
+    return this.filesService.deleteFilePermanently(userId, id);
   }
 }
