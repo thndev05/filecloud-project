@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { IncomingMessage } from 'http';
 import { Module } from '@nestjs/common';
 import { LoggerModule as PinoLoggerModule } from 'nestjs-pino';
+import { stdTimeFunctions } from 'pino';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -16,6 +17,8 @@ const isProduction = process.env.NODE_ENV === 'production';
     PinoLoggerModule.forRoot({
       pinoHttp: {
         level: process.env.LOG_LEVEL || (isProduction ? 'info' : 'debug'),
+        // "2026-10-26T08:20:45.611Z" (UTC) instead of epoch milliseconds
+        timestamp: stdTimeFunctions.isoTime,
         transport: isProduction
           ? undefined
           : { target: 'pino-pretty', options: { singleLine: true } },
