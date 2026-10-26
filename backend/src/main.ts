@@ -2,11 +2,16 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Logger } from 'nestjs-pino';
 import cookieParser = require('cookie-parser');
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+
+  // Route all Nest logs (incl. Logger in services/filters) through pino
+  const logger = app.get(Logger);
+  app.useLogger(logger);
 
   // Enable CORS
   app.enableCors({
@@ -54,7 +59,6 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
-  console.log(` API documentation: http://localhost:${port}/api/docs`);
+  logger.log(`Application is running on port ${port}, docs at /api/docs`);
 }
 bootstrap();
