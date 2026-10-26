@@ -9,6 +9,7 @@ import { FilesModule } from './modules/files/files.module';
 import { FoldersModule } from './modules/folders/folders.module';
 import { SharesModule } from './modules/shares/shares.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     FoldersModule,
     SharesModule,
     NotificationsModule,
+    HealthModule,
   ],
 })
 export class AppModule {}

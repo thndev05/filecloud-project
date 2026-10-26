@@ -39,6 +39,14 @@ export class MinioService implements OnModuleInit {
     }
   }
 
+  async isHealthy(): Promise<boolean> {
+    try {
+      return await this.minioClient.bucketExists(this.bucketName);
+    } catch {
+      return false;
+    }
+  }
+
   async uploadFile(
     fileName: string,
     file: Buffer,
