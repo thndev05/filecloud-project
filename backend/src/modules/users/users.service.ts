@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { MinioService } from '../../infrastructure/minio/minio.service';
 import { UpdateUserDto, UserResponseDto, UserStatsDto } from './dto';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     private prisma: PrismaService,
     private minioService: MinioService,
@@ -16,7 +18,10 @@ export class UsersService {
     if (user.avatar) {
       try {
         user.avatar = await this.minioService.getPresignedUrl(user.avatar);
-      } catch {
+      } catch (error) {
+        this.logger.warn(
+          `Could not generate presigned avatar URL (MinIO may be offline): ${error?.message || error}`,
+        );
         user.avatar = null;
       }
     }
