@@ -34,8 +34,9 @@ export class MinioService implements OnModuleInit {
         this.logger.log(`Bucket ${this.bucketName} already exists`);
       }
     } catch (error) {
-      this.logger.error(`Error ensuring bucket exists: ${error.message}`);
-      throw error;
+      this.logger.warn(
+        `Could not connect to MinIO: ${error.message}. Backend will continue running, but file operations require MinIO.`,
+      );
     }
   }
 
