@@ -4,7 +4,11 @@ import AvatarPlaceholder from './AvatarPlaceholder';
 import { authService } from '../services/auth.service';
 import { userService, type UserProfile } from '../services/user.service';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onMenuToggle?: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const navigate = useNavigate();
@@ -41,10 +45,18 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-4 bg-white/80 dark:bg-[#101622]/80 backdrop-blur-md border-b border-gray-200 dark:border-[#232f48] transition-colors">
-      {/* Search Bar */}
-      <div className="flex-1 max-w-xl">
-        <div className="relative group">
+    <header className="sticky top-0 z-30 flex items-center justify-between px-3 sm:px-4 py-3 sm:py-4 bg-white/80 dark:bg-[#101622]/80 backdrop-blur-md border-b border-gray-200 dark:border-[#232f48] transition-colors">
+      {/* Mobile Hamburger Button + Search Bar */}
+      <div className="flex items-center gap-2 flex-1 max-w-xl">
+        <button
+          onClick={onMenuToggle}
+          className="p-2 md:hidden text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors shrink-0 flex items-center justify-center"
+          aria-label="Open navigation menu"
+        >
+          <span className="material-symbols-outlined text-[24px]">menu</span>
+        </button>
+
+        <div className="relative group w-full">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500 group-focus-within:text-primary transition-colors">
             <span className="material-symbols-outlined">search</span>
           </div>
@@ -57,7 +69,7 @@ const Header: React.FC = () => {
       </div>
 
       {/* Right Actions */}
-      <div className="flex items-center gap-4 ml-4">
+      <div className="flex items-center gap-2 sm:gap-4 ml-2 sm:ml-4">
         <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors relative">
           <span className="material-symbols-outlined">notifications</span>
           <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white dark:border-[#101622]"></span>

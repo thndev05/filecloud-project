@@ -14,7 +14,11 @@ export class UsersService {
     user: UserResponseDto,
   ): Promise<UserResponseDto> {
     if (user.avatar) {
-      user.avatar = await this.minioService.getPresignedUrl(user.avatar);
+      try {
+        user.avatar = await this.minioService.getPresignedUrl(user.avatar);
+      } catch {
+        user.avatar = null;
+      }
     }
     return user;
   }
