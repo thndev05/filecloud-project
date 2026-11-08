@@ -1,0 +1,37 @@
+name: CD - Deploy to VPS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Production VPS
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH into VPS and Update Containers
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            cd /opt/filecloud
+            git pull --ff-only
+            sudo bash deploy/deploy.sh
+
+      - name: Health Check Endpoint
+        run: |
+          echo "==> Checking https://filecloud.kun.id.vn/api/health"
+          for i in {1..12}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://filecloud.kun.id.vn/api/health" || true)
+            if [ "$code" = "200" ]; then
+              echo "✅ Deploy completed! Backend is healthy (200 OK)."
+              exit 0
+            fi
+            echo "Waiting for backend service... (attempt $i/12 - status: $code)"
+            sleep 5
+          done
+          echo "❌ Health check failed after 60s!"
+          exit 1
+

@@ -21,7 +21,7 @@ branch="$(git rev-parse --abbrev-ref HEAD)"
 echo "Deploying $(git log -1 --format='%h %s')"
 
 echo "==> Deploying on $TARGET (sudo may ask for your VPS password)"
-ssh -t "$TARGET" "cd $APP_DIR && git pull --ff-only && sudo bash deploy/deploy.sh"
+ssh "$TARGET" "cd $APP_DIR && git pull --ff-only && sudo bash deploy/deploy.sh"
 
 echo "==> Health check (backend runs migrations on start, allow ~60s)"
 for _ in $(seq 1 12); do
